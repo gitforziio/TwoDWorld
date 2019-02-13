@@ -1,0 +1,121 @@
+<!doctype html> 
+<html lang="zh-cn"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Creature: legs</title>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <script type="text/javascript" src="js/convnet.js"></script>
+    <script type="text/javascript" src="js/rl.js"></script>
+    <script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            background-color: #222;
+        }
+        div#worldbox {
+            width: 100%;
+            height: auto;
+            text-align: center;
+        }
+        div#worldbox canvas {
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+
+<script type="text/javascript">
+
+// create an environment object
+var env = {};
+env.getNumStates = function() { return 18; }
+env.getMaxNumActions = function() { return 17; }
+
+// create the DQN agent
+// agent parameter spec to play with (this gets eval()'d on Agent reset)
+var spec = {}
+spec.update = 'qlearn'; // qlearn | sarsa
+spec.gamma = 0.5; // discount factor, [0, 1)
+spec.epsilon = 0.3; // initial epsilon for epsilon-greedy policy, [0, 1)
+spec.alpha = 0.01; // value function learning rate
+spec.experience_add_every = 1; // number of time steps before we add another experience to replay memory
+spec.experience_size = 5000; // size of experience replay memory
+spec.learning_steps_per_iteration = 2;
+spec.tderror_clamp = 1.0; // for robustness
+spec.num_hidden_units = 100 // number of neurons in hidden layer
+
+
+agent = new RL.DQNAgent(env, spec); 
+
+// setInterval(function(){ // start the learning loop
+//   var action = agent.act(s); // s is an array of length 8
+//   //... execute action in environment and get the reward
+//   agent.learn(reward); // the agent improves its Q,policy,model, etc. reward is a float
+// }, 0);
+
+</script>
+
+
+
+<div id="worldbox">
+<script type="text/javascript" src="build/creature_feets_legs_better.js"></script>
+</div>
+
+<div>
+    <button onclick="setEpsilon();"> set epsilon </button>
+    <button onclick="makeJson();"> make Json </button>
+    <button onclick="loadJson();"> load Json </button>
+    <textarea id='EpsilonBox'>0.3</textarea>
+    <textarea id='JsonBox'>
+
+
+    </textarea>
+<!--     <button onclick="footStand(foot1);"> footStand(foot1) </button>
+    <button onclick="footStand(foot2);"> footStand(foot2) </button>
+    <button onclick="footRest(foot1);"> footRest(foot1) </button>
+    <button onclick="footRest(foot2);"> footRest(foot2) </button>
+    <button onclick="footRotateLeft(foot1);"> footRotateLeft(foot1) </button>
+    <button onclick="footRotateLeft(foot2);"> footRotateLeft(foot2) </button>
+    <button onclick="footRotateRight(foot1);"> footRotateRight(foot1) </button>
+    <button onclick="footRotateRight(foot2);"> footRotateRight(foot2) </button> -->
+</div>
+
+
+
+<script type="text/javascript">
+function setEpsilon(){
+    epsilon = $('#EpsilonBox').val();
+    if (epsilon >= 1) {
+        epsilon = 0.99;
+    }
+    else if (epsilon <= 0) {
+        epsilon = 0.01;
+    }
+    agent.epsilon = epsilon;
+    $('#EpsilonBox').val(epsilon);
+}
+
+function makeJson(){
+    var json = agent.toJSON();
+    var str = JSON.stringify(json);
+    $('#JsonBox').val(str);
+    console.log('Json Made.');
+}
+
+function loadJson(){
+    var json = JSON.parse($('#JsonBox').val());
+    agent.fromJSON(json);
+    console.log('Json Loaded.');
+}
+
+//loadJson();
+setInterval(makeJson, 30000);
+
+
+</script>
+
+
+
+</body>
+</html>
